@@ -9,6 +9,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
+
+import javafx.scene.shape.DrawMode;
+import javafx.scene.shape.Line;
 
 
 public class AppController {
@@ -17,6 +21,8 @@ public class AppController {
     private Pane drawingPane; // Legătura cu Pane din FXML
 
     private Graf graf; // Instanța de Graf
+    private Node m_SelectedNode=null;
+    private boolean m_isFirstNodeSelected;
 
     private static final double RADIUS = 20; // Raza cercului
     private static final double MIN_DISTANCE = RADIUS * 2; // Distanța minimă dintre cercuri
@@ -36,9 +42,49 @@ public class AppController {
                 drawCircle(event);
             }
         });
+        drawingPane.setOnMouseDragged(event -> {
+            if(event.getButton() == MouseButton.SECONDARY) {
+               // List<Node> for_nodes =graf.getNodes();
+                for(Node node : graf.getNodes())
+                {
+                    int dx =(int) (node.getPos().getX()- event.getX());
+                    int dy =(int) (node.getPos().getY()- event.getY());
+                    int distanceSquared = dx*dx+dy*dy;
+
+                    if(distanceSquared < MIN_DISTANCE*MIN_DISTANCE)
+                    {
+                        if(m_SelectedNode != null)
+                        {
+                            if(graf.addEdge(m_SelectedNode, node))
+                            {
+                                drawLine((int) m_SelectedNode.getPos().getX(),(int)m_SelectedNode.getPos().getY(),(int)node.getPos().getX(),(int)node.getPos().getY());
+
+                            }
+                            m_isFirstNodeSelected=false;
+                            m_SelectedNode=null;
+
+                        }
+                        else
+                        {
+                            m_isFirstNodeSelected=true;
+                            m_SelectedNode=node;
+                        }
+                        break;
+                    }
+                }
+            }
+        });
 
     }
 
+    private void drawLine(int startX, int startY, int endX, int endY)
+    {
+
+        Line line = new Line(startX, startY, endX, endY);
+        drawingPane.getChildren().addAll(line);
+
+
+    }
     private void drawCircle(MouseEvent event) {
         double x = event.getX();
         double y = event.getY();

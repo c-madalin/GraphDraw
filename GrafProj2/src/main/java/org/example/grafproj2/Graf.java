@@ -18,6 +18,7 @@ public class Graf {
     {
         return m_id;
     }
+
     public void addNode(int x, int y) {
         int overlapThreshold = 30;
         for (Node node : nodes)
